@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+      "target": "ES2022",
+      "module": "ES2022",
+      "outDir": "./dist",
+      "strict": true,
+      "preserveConstEnums": true,
+      "noEmit": false,
+      "sourceMap": true,
+      "moduleResolution": "node",
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true
+  },
+  "exclude": ["node_modules", "**/*.test.ts", "dist"]
+}
