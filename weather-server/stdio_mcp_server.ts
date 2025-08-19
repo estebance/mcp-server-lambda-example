@@ -4,11 +4,13 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
+import {
+  StdioServerTransport
+} from "@modelcontextprotocol/sdk/server/stdio.js";
 
-
-class MCPWeatherServer {
+class StdIoMCPWeatherServer {
     public server: Server;
-  
+
     constructor() {
       this.server = new Server(
         {
@@ -23,7 +25,7 @@ class MCPWeatherServer {
       );
       this.setupHandlers();
     }
-  
+
     private setupHandlers() {
       // List available tools
       this.server.setRequestHandler(ListToolsRequestSchema, async () => {
@@ -62,7 +64,7 @@ class MCPWeatherServer {
           ],
         };
       });
-  
+
       // Handle tool calls
       this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const { name, arguments: args } = request.params;
@@ -76,7 +78,7 @@ class MCPWeatherServer {
                 },
               ],
             };
-  
+
           case 'get_current_time':
             return {
               content: [
@@ -86,7 +88,7 @@ class MCPWeatherServer {
                 },
               ],
             };
-  
+
           case 'lambda_info':
             return {
               content: [
@@ -101,13 +103,15 @@ class MCPWeatherServer {
                 },
               ],
             };
-  
+
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
       });
     }
-    
+
 }
 
-export default MCPWeatherServer;
+const server = new StdIoMCPWeatherServer();
+const transport = new StdioServerTransport();
+await server.server.connect(transport);

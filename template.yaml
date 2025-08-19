@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   mcp-server-lambda-example
@@ -22,16 +22,45 @@ Resources:
       Dockerfile: Dockerfile
       DockerContext: ./weather-server
       DockerTag: nodejs22.x
-    Properties:    
+    Properties:
       PackageType: Image
       Architectures:
-      - x86_64
+        - x86_64
       Events:
         McpServerApi:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /v1/{proxy+}
             Method: ANY
+  StdIoWeatherServerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Metadata:
+      Dockerfile: stdio.Dockerfile
+      DockerContext: ./weather-server
+      DockerTag: nodejs22.x
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      FunctionUrlConfig:
+        AuthType: NONE
+        InvokeMode: BUFFERED # Use RESPONSE_STREAM for streaming if needed
+        Cors:
+          AllowCredentials: false
+          AllowHeaders:
+            - Content-Type
+            - Authorization
+            - X-Requested-With
+            - Accept
+          AllowMethods:
+            - GET
+            - POST
+            - DELETE
+          AllowOrigins:
+            - "*"
+          ExposeHeaders:
+            - "*"
+          MaxAge: 86400
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
     Properties:
@@ -44,17 +73,11 @@ Resources:
     Properties:
       ResourceGroupName:
         Ref: ApplicationResourceGroup
-      AutoConfigurationEnabled: 'true'
+      AutoConfigurationEnabled: "true"
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  # HelloWorldApi:
-  #   Description: API Gateway endpoint URL for Prod stage for Hello World function
-  #   Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
   WeatherServerFunction:
     Description: Weather Server Lambda Function ARN
     Value: !GetAtt WeatherServerFunction.Arn
-  # HelloWorldFunctionIamRole:
-  #   Description: Implicit IAM Role created for Hello World function
-  #   Value: !GetAtt HelloWorldFunctionRole.Arn
+  StdIoWeatherServerFunction:
+    Description: Weather Server Lambda Function ARN
+    Value: !GetAtt StdIoWeatherServerFunction.Arn
