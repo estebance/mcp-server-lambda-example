@@ -1,12 +1,9 @@
 import {
-  Handler,
-  Context,
-  APIGatewayProxyWithCognitoAuthorizerEvent,
-  APIGatewayProxyResult,
+  Handler
 } from "aws-lambda";
 import {
-  APIGatewayProxyEventHandler,
   StdioServerAdapterRequestHandler,
+  LambdaFunctionURLEventHandler
 } from "@aws/run-mcp-servers-with-aws-lambda";
 
 const serverParams = {
@@ -15,13 +12,10 @@ const serverParams = {
     "stdio_mcp_server.js"
   ],
 }
-const requestHandler = new APIGatewayProxyEventHandler(
+const requestHandler = new LambdaFunctionURLEventHandler(
   new StdioServerAdapterRequestHandler(serverParams)
 );
 
-export const handler: Handler = async (
-  event: APIGatewayProxyWithCognitoAuthorizerEvent,
-  context: Context
-): Promise<APIGatewayProxyResult> => {
+export const handler: Handler = async (event, context) => {
   return requestHandler.handle(event, context);
 };
